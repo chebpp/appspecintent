@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UPI Mandate Payment</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      width: 90%;
+      font-size: 16px;
+    }
+    .app-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 20px;
+    }
+    .app-icons img {
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      transition: transform 0.2s;
+    }
+    .app-icons img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+  <h2>Enter UPI Mandate Intent URL</h2>
+  <input id="intentUrl" placeholder="upi://mandate?..."/>
+  <br/>
+  <button onclick="showApps()">Pay</button>
+
+  <div class="app-icons" id="appIcons" style="display: none;"></div>
+
+  <script>
+    const apps = [
+      {
+        name: "PhonePe",
+        package: "com.phonepe.app",
+        icon: "https://upload.wikimedia.org/wikipedia/commons/f/f0/PhonePe_Logo.png"
+      },
+      {
+        name: "Google Pay",
+        package: "com.google.android.apps.nbu.paisa.user",
+        icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png"
+      },
+      {
+        name: "Paytm",
+        package: "net.one97.paytm",
+        icon: "https://upload.wikimedia.org/wikipedia/commons/5/55/Paytm_logo.png"
+      }
+    ];
+
+    function showApps() {
+      const inputUrl = document.getElementById("intentUrl").value.trim();
+      if (!inputUrl.startsWith("upi://")) {
+        alert("Please enter a valid UPI mandate intent URL starting with upi://");
+        return;
+      }
+
+      const container = document.getElementById("appIcons");
+      container.innerHTML = ""; // Clear any previous icons
+
+      apps.forEach(app => {
+        const img = document.createElement("img");
+        img.src = app.icon;
+        img.alt = app.name;
+        img.title = app.name;
+
+        img.onclick = () => {
+          const upiPath = inputUrl.replace("upi://", ""); // remove scheme
+          const intentUrl = `intent://${upiPath}#Intent;scheme=upi;package=${app.package};end`;
+          window.location.href = intentUrl;
+        };
+
+        container.appendChild(img);
+      });
+
+      container.style.display = "flex";
+    }
+  </script>
+</body>
+</html>
