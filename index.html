@@ -1,40 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>UPI Mandate Payment</title>
   <style>
     body {
       font-family: sans-serif;
-      padding: 20px;
       text-align: center;
+      padding: 20px;
+      background: url('assets/bg.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: white;
     }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
     input, button {
       padding: 10px;
       margin: 10px;
       width: 90%;
       font-size: 16px;
+      border-radius: 8px;
+      border: none;
     }
+
+    input {
+      background-color: #ffffffcc;
+      color: #000;
+    }
+
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
     .app-icons {
       display: flex;
       justify-content: center;
       gap: 20px;
       margin-top: 20px;
+      flex-wrap: wrap;
     }
+
     .app-icons img {
       width: 60px;
       height: 60px;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.3);
       cursor: pointer;
-      border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-      transition: transform 0.2s;
+      transition: transform 0.2s ease;
+      background: white;
+      padding: 5px;
     }
+
     .app-icons img:hover {
       transform: scale(1.1);
     }
   </style>
 </head>
 <body>
+
   <h2>Enter UPI Mandate Intent URL</h2>
   <input id="intentUrl" placeholder="upi://mandate?..."/>
   <br/>
@@ -47,17 +76,17 @@
       {
         name: "PhonePe",
         package: "com.phonepe.app",
-        icon: "https://upload.wikimedia.org/wikipedia/commons/f/f0/PhonePe_Logo.png"
+        icon: "assets/phonepe.png"
       },
       {
         name: "Google Pay",
         package: "com.google.android.apps.nbu.paisa.user",
-        icon: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Google_Pay_Logo.svg/512px-Google_Pay_Logo.svg.png"
+        icon: "assets/gpay.png"
       },
       {
         name: "Paytm",
         package: "net.one97.paytm",
-        icon: "https://upload.wikimedia.org/wikipedia/commons/5/55/Paytm_logo.png"
+        icon: "assets/paytm.png"
       }
     ];
 
@@ -69,7 +98,9 @@
       }
 
       const container = document.getElementById("appIcons");
-      container.innerHTML = ""; // Clear any previous icons
+      container.innerHTML = "";
+
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
       apps.forEach(app => {
         const img = document.createElement("img");
@@ -78,9 +109,18 @@
         img.title = app.name;
 
         img.onclick = () => {
-          const upiPath = inputUrl.replace("upi://", ""); // remove scheme
-          const intentUrl = `intent://${upiPath}#Intent;scheme=upi;package=${app.package};end`;
-          window.location.href = intentUrl;
+          const upiPath = inputUrl.replace("upi://", "");
+          let targetUrl = "";
+
+          if (isIOS) {
+            // On iOS: just use the basic UPI scheme
+            targetUrl = inputUrl;
+          } else {
+            // On Android: use intent URL to directly open specific app
+            targetUrl = `intent://${upiPath}#Intent;scheme=upi;package=${app.package};end`;
+          }
+
+          window.location.href = targetUrl;
         };
 
         container.appendChild(img);
@@ -89,5 +129,6 @@
       container.style.display = "flex";
     }
   </script>
+
 </body>
 </html>
