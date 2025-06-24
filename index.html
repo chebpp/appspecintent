@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>UPI Mandate Payment</title>
+  <title>UPI Mandate + Deep Link Launcher</title>
   <style>
     body {
       font-family: sans-serif;
@@ -64,10 +64,10 @@
 </head>
 <body>
 
-  <h2>Enter UPI Mandate Intent URL</h2>
-  <input id="intentUrl" placeholder="upi://mandate?..."/>
+  <h2>Enter UPI or App-Specific Intent URL</h2>
+  <input id="intentUrl" placeholder="upi://mandate?... or paytmmp://..."/>
   <br/>
-  <button onclick="showApps()">Pay</button>
+  <button onclick="showApps()">Continue</button>
 
   <div class="app-icons" id="appIcons" style="display: none;"></div>
 
@@ -92,8 +92,8 @@
 
     function showApps() {
       const inputUrl = document.getElementById("intentUrl").value.trim();
-      if (!inputUrl.startsWith("upi://")) {
-        alert("Please enter a valid UPI mandate intent URL starting with upi://");
+      if (!inputUrl) {
+        alert("Please enter a valid URL");
         return;
       }
 
@@ -101,6 +101,7 @@
       container.innerHTML = "";
 
       const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+      const isMandateFlow = inputUrl.startsWith("upi://mandate");
 
       apps.forEach(app => {
         const img = document.createElement("img");
@@ -109,15 +110,15 @@
         img.title = app.name;
 
         img.onclick = () => {
-          const upiPath = inputUrl.replace("upi://", "");
           let targetUrl = "";
 
-          if (isIOS) {
-            // On iOS: just use the basic UPI scheme
-            targetUrl = inputUrl;
-          } else {
-            // On Android: use intent URL to directly open specific app
+          if (isMandateFlow && !isIOS) {
+            // Convert to Android intent:// for mandate flow
+            const upiPath = inputUrl.replace("upi://", "");
             targetUrl = `intent://${upiPath}#Intent;scheme=upi;package=${app.package};end`;
+          } else {
+            // Use URL as-is (for app-specific schemes or fallback)
+            targetUrl = inputUrl;
           }
 
           window.location.href = targetUrl;
